@@ -1,0 +1,1192 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Pembayaran Ulang | Buzz Payment</title>
+<meta name="description" content="Halaman pembayaran ulang melalui QRIS.">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+<style>
+*{margin:0;padding:0;box-sizing:border-box}
+
+:root{
+    --primary:#4f46e5;
+    --primary-light:#eef2ff;
+    --primary-dark:#3730a3;
+    --accent:#8b5cf6;
+    --success:#10b981;
+    --success-bg:#ecfdf5;
+    --warning:#f59e0b;
+    --warning-light:#fef3c7;
+    --danger:#ef4444;
+    --dark:#0f172a;
+    --text:#334155;
+    --muted:#64748b;
+    --border:#e2e8f0;
+    --bg:#f0f2f8;
+    --white:#ffffff;
+    --radius:24px;
+    --shadow-xl:0 30px 90px rgba(79,70,229,.1),0 8px 24px rgba(15,23,42,.05);
+}
+
+html{scroll-behavior:smooth}
+
+body{
+    font-family:'Plus Jakarta Sans',ui-sans-serif,system-ui,-apple-system,sans-serif;
+    background:var(--bg);
+    color:var(--text);
+    min-height:100vh;
+    -webkit-font-smoothing:antialiased;
+}
+
+body::before{
+    content:"";
+    position:fixed;
+    inset:0;
+    z-index:-2;
+    background:
+        radial-gradient(ellipse 80% 50% at 15% -10%,rgba(99,102,241,.12),transparent),
+        radial-gradient(ellipse 60% 50% at 85% 110%,rgba(139,92,246,.08),transparent);
+}
+
+body::after{
+    content:"";
+    position:fixed;
+    width:600px;height:600px;
+    border-radius:50%;
+    top:-220px;right:-200px;
+    background:radial-gradient(circle,rgba(99,102,241,.07),transparent 70%);
+    z-index:-1;
+    animation:float-orb 20s ease-in-out infinite;
+}
+
+@keyframes float-orb{
+    0%,100%{transform:translate(0,0) scale(1)}
+    50%{transform:translate(-40px,40px) scale(1.1)}
+}
+
+/* ══ HEADER ══ */
+header{
+    background:rgba(255,255,255,.85);
+    backdrop-filter:blur(20px);
+    -webkit-backdrop-filter:blur(20px);
+    border-bottom:1px solid rgba(226,232,240,.6);
+    position:sticky;
+    top:0;
+    z-index:100;
+}
+
+.header-inner{
+    max-width:1120px;
+    min-height:74px;
+    margin:auto;
+    padding:0 22px;
+    display:flex;
+    align-items:center;
+    justify-content:space-between;
+    gap:20px;
+}
+
+.brand{
+    display:flex;
+    align-items:center;
+    gap:12px;
+    text-decoration:none;
+    color:var(--dark);
+}
+
+.brand img{
+    width:44px;height:44px;
+    object-fit:contain;
+    border-radius:12px;
+    box-shadow:0 4px 12px rgba(15,23,42,.08);
+}
+
+.brand-text strong{
+    display:block;
+    font-size:15px;
+    font-weight:800;
+    letter-spacing:-.2px;
+}
+
+.brand-text span{
+    display:block;
+    color:var(--muted);
+    font-size:11px;
+    margin-top:2px;
+    font-weight:600;
+}
+
+.secure-badge{
+    display:inline-flex;
+    align-items:center;
+    gap:7px;
+    padding:8px 14px;
+    border-radius:999px;
+    background:var(--success-bg);
+    color:#059669;
+    font-size:11px;
+    font-weight:800;
+    border:1px solid rgba(16,185,129,.25);
+}
+
+.secure-badge-icon{
+    width:16px;height:16px;
+    display:flex;align-items:center;justify-content:center;
+    border-radius:50%;
+    background:var(--success);
+    color:#fff;
+    font-size:9px;
+    animation:pulse-soft 2s ease-in-out infinite;
+}
+
+@keyframes pulse-soft{
+    0%,100%{box-shadow:0 0 0 0 rgba(16,185,129,.35)}
+    50%{box-shadow:0 0 0 5px rgba(16,185,129,0)}
+}
+
+/* ══ BANNER ══ */
+.banner-wrapper{
+    max-width:1120px;
+    margin:22px auto 0;
+    padding:0 22px;
+}
+
+.banner{
+    width:100%;
+    display:block;
+    max-height:210px;
+    object-fit:cover;
+    border-radius:20px;
+    border:1px solid rgba(255,255,255,.8);
+    box-shadow:0 14px 40px rgba(15,23,42,.07);
+}
+
+/* ══ MAIN LAYOUT ══ */
+main{
+    max-width:1120px;
+    margin:28px auto 60px;
+    padding:0 22px;
+}
+
+.layout{
+    display:grid;
+    grid-template-columns:minmax(0,1.05fr) minmax(360px,.95fr);
+    gap:24px;
+    align-items:start;
+}
+
+/* ══ CARDS ══ */
+.card{
+    background:var(--white);
+    border-radius:var(--radius);
+    border:1px solid rgba(255,255,255,.8);
+    box-shadow:var(--shadow-xl);
+    overflow:hidden;
+    animation:card-enter .7s cubic-bezier(.16,1,.3,1) both;
+}
+
+.card-left{animation-delay:.05s}
+.payment-panel .card{animation-delay:.15s}
+
+@keyframes card-enter{
+    from{opacity:0;transform:translateY(30px) scale(.97)}
+    to{opacity:1;transform:translateY(0) scale(1)}
+}
+
+.card-glow{
+    height:5px;
+    background:linear-gradient(90deg,#4f46e5,#8b5cf6,#ec4899,#f59e0b,#10b981,#4f46e5);
+    background-size:200% 100%;
+    animation:gradient-shift 4s linear infinite;
+}
+
+@keyframes gradient-shift{
+    0%{background-position:0% 50%}
+    100%{background-position:200% 50%}
+}
+
+.card-header{
+    padding:28px 28px 20px;
+    border-bottom:1px solid var(--border);
+}
+
+.eyebrow{
+    display:inline-flex;
+    align-items:center;
+    gap:7px;
+    font-size:11px;
+    font-weight:800;
+    letter-spacing:.08em;
+    text-transform:uppercase;
+    color:var(--primary);
+    margin-bottom:9px;
+}
+
+.eyebrow-dot{
+    width:7px;height:7px;
+    border-radius:50%;
+    background:var(--primary);
+    animation:pulse-soft 2s ease-in-out infinite;
+}
+
+.card-header h1{
+    color:var(--dark);
+    font-size:clamp(24px,4vw,31px);
+    line-height:1.2;
+    letter-spacing:-.7px;
+    font-weight:800;
+}
+
+.card-header p{
+    color:var(--muted);
+    font-size:14px;
+    line-height:1.7;
+    margin-top:9px;
+}
+
+.card-body{padding:25px 28px 29px}
+
+/* ══ SUMMARY ══ */
+.summary{
+    border:1px solid var(--border);
+    border-radius:18px;
+    overflow:hidden;
+    margin-bottom:21px;
+    background:#fafbff;
+}
+
+.summary-title{
+    padding:14px 18px;
+    background:linear-gradient(135deg,#f8fafc,#eef2ff);
+    border-bottom:1px solid var(--border);
+    color:var(--dark);
+    font-size:13px;
+    font-weight:800;
+    display:flex;
+    align-items:center;
+    gap:8px;
+}
+
+.summary-row{
+    display:flex;
+    align-items:center;
+    justify-content:space-between;
+    gap:20px;
+    padding:13px 18px;
+    border-bottom:1px solid #f1f5f9;
+    font-size:13px;
+    background:#fff;
+    transition:background .2s ease;
+}
+
+.summary-row:hover{background:#fafbff}
+
+.summary-row:last-child{border-bottom:0}
+.summary-row span:first-child{color:var(--muted);font-weight:600}
+.summary-row strong{color:var(--dark);text-align:right;font-weight:700}
+
+.status-pending{
+    display:inline-flex;
+    align-items:center;
+    gap:6px;
+    padding:5px 11px;
+    background:var(--warning-light);
+    color:#b45309;
+    border-radius:999px;
+    font-size:11px;
+    font-weight:800;
+}
+
+.status-pending::before{
+    content:"";
+    width:6px;height:6px;
+    border-radius:50%;
+    background:var(--warning);
+    animation:pulse-soft 1.5s ease-in-out infinite;
+}
+
+/* ══ QRIS ══ */
+.qris-card{
+    border-radius:20px;
+    border:1px solid #dbeafe;
+    background:linear-gradient(145deg,#f8fbff,#eef2ff);
+    padding:24px;
+    text-align:center;
+    margin-bottom:21px;
+    position:relative;
+    overflow:hidden;
+}
+
+.qris-card::before{
+    content:"";
+    position:absolute;
+    width:220px;height:220px;
+    border-radius:50%;
+    background:radial-gradient(circle,rgba(99,102,241,.1),transparent 70%);
+    top:-80px;right:-80px;
+    animation:float-orb 14s ease-in-out infinite;
+}
+
+.qris-label{
+    font-size:11px;
+    font-weight:800;
+    letter-spacing:.08em;
+    text-transform:uppercase;
+    color:var(--primary);
+    margin-bottom:6px;
+    position:relative;
+    z-index:2;
+}
+
+.qris-card h2{
+    color:var(--dark);
+    font-size:20px;
+    margin-bottom:5px;
+    position:relative;
+    z-index:2;
+}
+
+.qris-card > p{
+    color:var(--muted);
+    font-size:12px;
+    line-height:1.6;
+    max-width:390px;
+    margin:0 auto 18px;
+    position:relative;
+    z-index:2;
+}
+
+.qris-image-box{
+    width:min(100%,300px);
+    aspect-ratio:1/1;
+    margin:auto;
+    padding:14px;
+    background:#fff;
+    border-radius:18px;
+    border:1px solid #dbe3ee;
+    box-shadow:0 14px 35px rgba(15,23,42,.08);
+    display:flex;
+    align-items:center;
+    justify-content:center;
+    position:relative;
+    overflow:hidden;
+    z-index:2;
+}
+
+.qris-image-box img{
+    display:block;
+    width:100%;
+    height:100%;
+    object-fit:contain;
+    border-radius:8px;
+}
+
+.qris-image-box::after{
+    content:"";
+    position:absolute;
+    left:12%;right:12%;
+    height:2px;
+    background:linear-gradient(90deg,transparent,var(--primary),transparent);
+    border-radius:99px;
+    box-shadow:0 0 12px rgba(79,70,229,.4);
+    animation:scan-line 3s ease-in-out infinite;
+}
+
+@keyframes scan-line{
+    0%,100%{top:14%;opacity:0}
+    12%{opacity:1}
+    50%{top:84%}
+    88%{opacity:1}
+}
+
+.qris-caption{
+    margin-top:14px;
+    display:flex;
+    align-items:center;
+    justify-content:center;
+    gap:7px;
+    color:#475569;
+    font-size:11px;
+    font-weight:600;
+    position:relative;
+    z-index:2;
+}
+
+.check{
+    width:18px;height:18px;
+    display:inline-flex;
+    align-items:center;
+    justify-content:center;
+    border-radius:50%;
+    background:rgba(16,185,129,.15);
+    color:var(--success);
+    font-size:10px;
+    font-weight:900;
+}
+
+/* ══ NOTICE ══ */
+.notice{
+    display:flex;
+    align-items:flex-start;
+    gap:13px;
+    padding:18px;
+    border-radius:16px;
+    background:linear-gradient(135deg,#fffbeb,#fef3c7);
+    border:1px solid rgba(245,158,11,.3);
+    margin-bottom:22px;
+    position:relative;
+}
+
+.notice::before{
+    content:"";
+    position:absolute;
+    top:0;left:0;
+    width:4px;height:100%;
+    background:linear-gradient(180deg,var(--warning),#f97316);
+    border-radius:0 4px 4px 0;
+}
+
+.notice-icon{
+    width:34px;height:34px;
+    min-width:34px;
+    display:flex;align-items:center;justify-content:center;
+    border-radius:10px;
+    background:rgba(245,158,11,.18);
+    color:#b45309;
+    font-weight:900;
+}
+
+.notice strong{
+    display:block;
+    color:#92400e;
+    font-size:13px;
+    margin-bottom:3px;
+    font-weight:800;
+}
+
+.notice p{
+    color:#92400e;
+    font-size:12px;
+    line-height:1.65;
+}
+
+/* ══ INSTRUCTIONS ══ */
+.instructions-title{
+    font-size:15px;
+    font-weight:800;
+    color:var(--dark);
+    margin-bottom:15px;
+    display:flex;
+    align-items:center;
+    gap:9px;
+}
+
+.instructions-title span{
+    width:32px;height:32px;
+    display:flex;align-items:center;justify-content:center;
+    border-radius:10px;
+    background:linear-gradient(135deg,var(--primary),var(--accent));
+    color:#fff;
+    font-size:14px;
+    box-shadow:0 4px 12px rgba(79,70,229,.25);
+}
+
+.instruction{
+    display:flex;
+    gap:13px;
+    margin-bottom:11px;
+    padding:13px 14px;
+    border-radius:14px;
+    background:#fafbff;
+    border:1px solid rgba(226,232,240,.6);
+    transition:all .3s ease;
+}
+
+.instruction:hover{
+    transform:translateX(6px);
+    border-color:rgba(79,70,229,.2);
+    box-shadow:0 4px 16px rgba(79,70,229,.08);
+}
+
+.instruction:last-child{margin-bottom:0}
+
+.number{
+    width:30px;height:30px;
+    min-width:30px;
+    display:flex;align-items:center;justify-content:center;
+    border-radius:10px;
+    background:linear-gradient(135deg,var(--primary-light),#e0e7ff);
+    color:var(--primary);
+    font-size:12px;
+    font-weight:800;
+}
+
+.instruction p{
+    color:var(--muted);
+    font-size:12px;
+    line-height:1.65;
+    padding-top:5px;
+}
+
+.instruction strong{color:var(--dark);font-weight:700}
+
+/* ══ PAYMENT PANEL ══ */
+.payment-panel{position:sticky;top:96px}
+
+.payment-panel .card-body{padding:26px}
+
+.payment-status{
+    display:flex;
+    align-items:center;
+    gap:13px;
+    padding:16px;
+    border-radius:16px;
+    background:linear-gradient(135deg,#f8fafc,#eef2ff);
+    border:1px solid var(--border);
+    margin-bottom:20px;
+}
+
+.status-pulse{
+    width:13px;height:13px;
+    min-width:13px;
+    border-radius:50%;
+    background:var(--warning);
+    animation:pulse-soft 1.8s ease-in-out infinite;
+}
+
+.payment-status strong{
+    display:block;
+    color:var(--dark);
+    font-size:13px;
+    font-weight:800;
+}
+
+.payment-status span{
+    display:block;
+    color:var(--muted);
+    font-size:11px;
+    margin-top:2px;
+}
+
+.payment-status span::after{
+    content:"...";
+    animation:dots 1.5s steps(3) infinite;
+}
+
+@keyframes dots{
+    0%{content:""}
+    33%{content:"."}
+    66%{content:".."}
+    100%{content:"..."}
+}
+
+/* ══ AMOUNT ══ */
+.amount-box{
+    text-align:center;
+    padding:24px 16px;
+    background:linear-gradient(135deg,#eef2ff,#f8fbff);
+    border:1px solid #dbeafe;
+    border-radius:18px;
+    margin-bottom:18px;
+    position:relative;
+    overflow:hidden;
+}
+
+.amount-box::before{
+    content:"";
+    position:absolute;
+    width:180px;height:180px;
+    border-radius:50%;
+    background:radial-gradient(circle,rgba(99,102,241,.08),transparent 70%);
+    bottom:-70px;left:-70px;
+}
+
+.amount-label{
+    color:var(--muted);
+    font-size:11px;
+    font-weight:700;
+    margin-bottom:8px;
+    letter-spacing:.08em;
+    text-transform:uppercase;
+    position:relative;
+    z-index:2;
+}
+
+.amount{
+    color:var(--dark);
+    font-size:clamp(28px,5vw,38px);
+    line-height:1;
+    font-weight:800;
+    letter-spacing:-1px;
+    position:relative;
+    z-index:2;
+}
+
+.copy-btn{
+    display:inline-flex;
+    align-items:center;
+    gap:6px;
+    margin-top:12px;
+    padding:7px 14px;
+    border-radius:999px;
+    border:1px solid #dbe3ee;
+    background:#fff;
+    color:var(--primary);
+    font-family:inherit;
+    font-size:11px;
+    font-weight:800;
+    cursor:pointer;
+    transition:all .2s ease;
+    position:relative;
+    z-index:2;
+}
+
+.copy-btn:hover{
+    background:var(--primary);
+    color:#fff;
+    border-color:var(--primary);
+    transform:translateY(-1px);
+}
+
+.copy-btn.copied{
+    background:var(--success);
+    color:#fff;
+    border-color:var(--success);
+}
+
+/* ══ EXPIRY ══ */
+.expiry-chip{
+    display:flex;
+    align-items:center;
+    justify-content:space-between;
+    gap:12px;
+    padding:14px 16px;
+    border-radius:14px;
+    background:#fafbff;
+    border:1px solid var(--border);
+    margin-bottom:18px;
+    transition:all .3s ease;
+}
+
+.expiry-chip.danger{
+    background:#fef2f2;
+    border-color:#fecaca;
+    animation:pulse-danger-border 1s ease-in-out infinite;
+}
+
+@keyframes pulse-danger-border{
+    0%,100%{box-shadow:0 0 0 0 rgba(239,68,68,.15)}
+    50%{box-shadow:0 0 0 5px rgba(239,68,68,0)}
+}
+
+.expiry-label{
+    font-size:11px;
+    font-weight:700;
+    color:var(--muted);
+    display:flex;
+    align-items:center;
+    gap:7px;
+}
+
+.expiry-label-icon{
+    width:26px;height:26px;
+    display:flex;align-items:center;justify-content:center;
+    border-radius:8px;
+    background:var(--primary-light);
+    color:var(--primary);
+    font-size:12px;
+}
+
+.expiry-chip.danger .expiry-label{color:var(--danger)}
+.expiry-chip.danger .expiry-label-icon{background:#fee2e2;color:var(--danger)}
+
+.expiry-time{
+    font-size:17px;
+    font-weight:800;
+    font-variant-numeric:tabular-nums;
+    color:var(--dark);
+    letter-spacing:.5px;
+}
+
+.expiry-time.danger{color:var(--danger);animation:pulse-text 1s ease-in-out infinite}
+
+@keyframes pulse-text{
+    0%,100%{opacity:1}
+    50%{opacity:.5}
+}
+
+/* ══ BUTTON ══ */
+.payment-button{
+    width:100%;
+    min-height:58px;
+    display:flex;
+    align-items:center;
+    justify-content:center;
+    gap:11px;
+    border:0;
+    border-radius:16px;
+    background:linear-gradient(135deg,var(--primary),var(--primary-dark));
+    color:#fff;
+    font-family:inherit;
+    font-size:15px;
+    font-weight:800;
+    letter-spacing:.2px;
+    text-decoration:none;
+    cursor:pointer;
+    position:relative;
+    overflow:hidden;
+    box-shadow:0 14px 30px rgba(79,70,229,.28),inset 0 1px 0 rgba(255,255,255,.15);
+    transition:transform .25s cubic-bezier(.16,1,.3,1),box-shadow .25s ease;
+}
+
+.payment-button::before{
+    content:"";
+    position:absolute;
+    top:0;left:-100%;
+    width:100%;height:100%;
+    background:linear-gradient(90deg,transparent,rgba(255,255,255,.2),transparent);
+    transition:left .6s ease;
+}
+
+.payment-button:hover::before{left:100%}
+
+.payment-button:hover{
+    transform:translateY(-3px);
+    box-shadow:0 18px 40px rgba(79,70,229,.35);
+}
+
+.payment-button:active{transform:translateY(-1px)}
+
+.payment-button:focus-visible{
+    outline:3px solid rgba(79,70,229,.3);
+    outline-offset:3px;
+}
+
+.payment-button:disabled{
+    opacity:.7;
+    cursor:not-allowed;
+    transform:none;
+}
+
+.button-icon{
+    width:30px;height:30px;
+    display:flex;align-items:center;justify-content:center;
+    border-radius:50%;
+    background:rgba(255,255,255,.15);
+    font-size:14px;
+    transition:transform .5s ease;
+}
+
+.payment-button:hover .button-icon{transform:rotate(180deg)}
+
+.payment-help{
+    text-align:center;
+    color:#94a3b8;
+    font-size:10px;
+    line-height:1.6;
+    margin-top:12px;
+}
+
+/* ══ SECURITY ══ */
+.security{
+    display:flex;
+    gap:13px;
+    padding:18px;
+    margin-top:20px;
+    background:linear-gradient(135deg,#ecfdf5,#d1fae5);
+    border:1px solid rgba(16,185,129,.2);
+    border-radius:16px;
+}
+
+.security-icon{
+    width:38px;height:38px;
+    min-width:38px;
+    display:flex;align-items:center;justify-content:center;
+    border-radius:12px;
+    background:linear-gradient(135deg,var(--success),#059669);
+    color:#fff;
+    font-size:16px;
+    box-shadow:0 6px 16px rgba(16,185,129,.25);
+}
+
+.security strong{
+    display:block;
+    color:#065f46;
+    font-size:12px;
+    margin-bottom:3px;
+    font-weight:800;
+}
+
+.security p{
+    color:#047857;
+    font-size:10px;
+    line-height:1.65;
+}
+
+/* ══ FOOTER ══ */
+footer{
+    max-width:1120px;
+    margin:0 auto;
+    padding:0 22px 38px;
+    text-align:center;
+    color:#94a3b8;
+    font-size:11px;
+    line-height:1.8;
+}
+
+.footer-divider{
+    width:100%;
+    height:1px;
+    background:var(--border);
+    margin-bottom:20px;
+}
+
+footer strong{color:#64748b;font-weight:700}
+
+/* ══ FADE OVERLAY ══ */
+.fade-overlay{
+    position:fixed;
+    inset:0;
+    background:#fff;
+    opacity:0;
+    pointer-events:none;
+    transition:opacity .5s ease;
+    z-index:9999;
+    display:flex;
+    flex-direction:column;
+    align-items:center;
+    justify-content:center;
+    gap:16px;
+}
+
+.fade-overlay.active{opacity:1;pointer-events:all}
+
+.fade-loader{
+    width:48px;height:48px;
+    border:4px solid rgba(79,70,229,.1);
+    border-top-color:var(--primary);
+    border-radius:50%;
+    animation:spin-loader .8s linear infinite;
+}
+
+@keyframes spin-loader{to{transform:rotate(360deg)}}
+
+.fade-text{
+    font-size:13px;
+    font-weight:700;
+    color:var(--primary);
+}
+
+/* ══ TOAST ══ */
+.toast{
+    position:fixed;
+    bottom:24px;
+    left:50%;
+    transform:translateX(-50%) translateY(80px);
+    padding:12px 22px;
+    border-radius:999px;
+    background:var(--dark);
+    color:#fff;
+    font-size:13px;
+    font-weight:700;
+    box-shadow:0 12px 30px rgba(15,23,42,.25);
+    opacity:0;
+    transition:all .4s cubic-bezier(.16,1,.3,1);
+    z-index:10000;
+    pointer-events:none;
+}
+
+.toast.show{
+    transform:translateX(-50%) translateY(0);
+    opacity:1;
+}
+
+/* ══ RESPONSIVE ══ */
+@media(max-width:820px){
+    .layout{grid-template-columns:1fr}
+    .payment-panel{position:static}
+}
+
+@media(max-width:600px){
+    .header-inner{min-height:64px;padding:0 15px}
+    .brand img{width:38px;height:38px;border-radius:10px}
+    .brand-text span{display:none}
+    .secure-badge{padding:7px 10px;font-size:10px}
+    .banner-wrapper{margin-top:14px;padding:0 12px}
+    .banner{border-radius:14px;max-height:150px}
+    main{margin-top:16px;padding:0 12px;margin-bottom:40px}
+    .card{border-radius:20px}
+    .card-header{padding:22px 19px 18px}
+    .card-body{padding:20px 18px 24px}
+    .payment-panel .card-body{padding:20px 18px 24px}
+    .summary-row{padding:12px 14px;font-size:12px}
+    .qris-card{padding:18px}
+    .qris-image-box{width:min(100%,260px)}
+    .instruction{padding:11px 12px}
+}
+
+@media(prefers-reduced-motion:reduce){
+    html{scroll-behavior:auto}
+    *,*::before,*::after{
+        animation-duration:.01ms!important;
+        animation-iteration-count:1!important;
+        transition-duration:.01ms!important;
+    }
+}
+</style>
+</head>
+<body>
+
+<div class="fade-overlay" id="fadeOverlay">
+    <div class="fade-loader"></div>
+    <div class="fade-text" id="fadeText">Memeriksa status pembayaran...</div>
+</div>
+
+<div class="toast" id="toast">Nominal berhasil disalin</div>
+
+<header>
+    <div class="header-inner">
+        <a href="#" class="brand" aria-label="Buzz Payment">
+            <img src="logo-buzz.png" alt="Logo Buzz Payment">
+            <div class="brand-text">
+                <strong>Buzz Payment</strong>
+                <span>Secure Payment Gateway</span>
+            </div>
+        </a>
+        <div class="secure-badge">
+            <span class="secure-badge-icon">✓</span>
+            Pembayaran Aman
+        </div>
+    </div>
+</header>
+
+<div class="banner-wrapper">
+    <img class="banner" src="banner.png" alt="Informasi pembayaran">
+</div>
+
+<main>
+    <div class="layout">
+
+        <section class="card card-left">
+            <div class="card-glow"></div>
+            <div class="card-header">
+                <div class="eyebrow">
+                    <span class="eyebrow-dot"></span>
+                    Pembayaran Ulang
+                </div>
+                <h1>Selesaikan Pembayaran Anda</h1>
+                <p>Silakan gunakan QRIS terbaru di bawah ini untuk menyelesaikan proses pembayaran Anda.</p>
+            </div>
+
+            <div class="card-body">
+
+                <div class="summary">
+                    <div class="summary-title">🧾 Ringkasan Pembayaran</div>
+                    <div class="summary-row">
+                        <span>Status</span>
+                        <strong><span class="status-pending">Pending</span></strong>
+                    </div>
+                    <div class="summary-row">
+                        <span>Metode Pembayaran</span>
+                        <strong>QRIS</strong>
+                    </div>
+                    <div class="summary-row">
+                        <span>Jenis Transaksi</span>
+                        <strong>Pembayaran Ulang</strong>
+                    </div>
+                </div>
+
+                <div class="qris-card">
+                    <div class="qris-label">QRIS Pembayaran Terbaru</div>
+                    <h2>Scan untuk Membayar</h2>
+                    <p>Gunakan aplikasi perbankan atau e-wallet yang mendukung QRIS untuk melakukan pembayaran.</p>
+                    <div class="qris-image-box">
+                        <img src="qris-bayar.png" alt="QRIS Pembayaran">
+                    </div>
+                    <div class="qris-caption">
+                        <span class="check">✓</span>
+                        Pastikan QRIS sesuai dengan halaman resmi
+                    </div>
+                </div>
+
+                <div class="notice">
+                    <div class="notice-icon">!</div>
+                    <div>
+                        <strong>Penting Sebelum Membayar</strong>
+                        <p>Pastikan nominal dan tujuan pembayaran sudah sesuai. Jangan melakukan pembayaran ke QRIS selain yang ditampilkan pada halaman pembayaran resmi.</p>
+                    </div>
+                </div>
+
+                <div class="instructions-title"><span>📋</span> Cara Melakukan Pembayaran</div>
+
+                <div class="instruction">
+                    <div class="number">1</div>
+                    <p>Buka aplikasi bank atau e-wallet yang mendukung <strong>QRIS</strong>.</p>
+                </div>
+                <div class="instruction">
+                    <div class="number">2</div>
+                    <p>Pilih menu <strong>Scan QR / QRIS</strong>, kemudian arahkan kamera ke QRIS di atas.</p>
+                </div>
+                <div class="instruction">
+                    <div class="number">3</div>
+                    <p>Periksa kembali nama merchant dan nominal sebelum melakukan konfirmasi pembayaran.</p>
+                </div>
+                <div class="instruction">
+                    <div class="number">4</div>
+                    <p>Setelah pembayaran berhasil, klik tombol <strong>Cek Status Pembayaran</strong> di panel sebelah.</p>
+                </div>
+
+            </div>
+        </section>
+
+        <aside class="payment-panel">
+            <div class="card">
+                <div class="card-glow"></div>
+                <div class="card-body">
+
+                    <div class="payment-status">
+                        <span class="status-pulse"></span>
+                        <div>
+                            <strong>Menunggu Pembayaran</strong>
+                            <span>Sistem memeriksa pembayaran secara otomatis</span>
+                        </div>
+                    </div>
+
+                    <div class="amount-box">
+                        <div class="amount-label">Total Pembayaran</div>
+                        <div class="amount" id="amountText">Rp 0</div>
+                        <button type="button" class="copy-btn" id="copyBtn" data-copy="0">
+                            <span>⧉</span> Salin Nominal
+                        </button>
+                    </div>
+
+                    <div class="expiry-chip" id="expiryChip">
+                        <div class="expiry-label">
+                            <span class="expiry-label-icon">⏱</span>
+                            QRIS Berlaku
+                        </div>
+                        <div class="expiry-time" id="expiryTime">03:00</div>
+                    </div>
+
+                    <button type="button" class="payment-button" id="checkBtn">
+                        <span class="button-icon">✓</span>
+                        Cek Status Pembayaran
+                    </button>
+                    <div class="payment-help">Klik setelah menyelesaikan pembayaran untuk memeriksa status transaksi Anda.</div>
+
+                    <div class="security">
+                        <div class="security-icon">🛡️</div>
+                        <div>
+                            <strong>Informasi Keamanan</strong>
+                            <p>Selalu periksa nama merchant, nominal, dan detail transaksi sebelum menekan tombol konfirmasi pada aplikasi pembayaran Anda.</p>
+                        </div>
+                    </div>
+
+                </div>
+            </div>
+        </aside>
+
+    </div>
+</main>
+
+<footer>
+    <div class="footer-divider"></div>
+    <p><strong>&copy; 2026 Buzz Payment.</strong> Semua hak dilindungi.</p>
+    <p>Gunakan QRIS resmi yang ditampilkan pada halaman ini dan selalu periksa detail transaksi sebelum membayar.</p>
+</footer>
+
+<script>
+(function(){
+    "use strict";
+
+    var EXPIRY_SECONDS=3*60;
+    var left=EXPIRY_SECONDS;
+    var expiryInterval=null;
+    var redirecting=false;
+
+    var fadeOverlay=document.getElementById("fadeOverlay");
+    var fadeText=document.getElementById("fadeText");
+    var checkBtn=document.getElementById("checkBtn");
+    var copyBtn=document.getElementById("copyBtn");
+    var toast=document.getElementById("toast");
+    var expiryTime=document.getElementById("expiryTime");
+    var expiryChip=document.getElementById("expiryChip");
+
+    function pad(n){return n<10?"0"+n:String(n);}
+
+    function renderExpiry(){
+        expiryTime.textContent=pad(Math.floor(left/60))+":"+pad(left%60);
+        if(left<=60){
+            expiryTime.classList.add("danger");
+            expiryChip.classList.add("danger");
+        }
+    }
+
+    function startExpiry(){
+        expiryInterval=setInterval(function(){
+            left--;
+            renderExpiry();
+            if(left<=0){
+                clearInterval(expiryInterval);
+                expiryInterval=null;
+                expiryTime.textContent="Kedaluwarsa";
+                expiryChip.querySelector(".expiry-label").lastChild.textContent=" QRIS Kedaluwarsa";
+            }
+        },1000);
+    }
+
+    function smoothRedirect(url,message){
+        if(redirecting)return;
+        redirecting=true;
+        if(expiryInterval){clearInterval(expiryInterval);expiryInterval=null;}
+        fadeText.textContent=message;
+        fadeOverlay.classList.add("active");
+        setTimeout(function(){window.location.href=url;},600);
+    }
+
+    copyBtn.addEventListener("click",function(){
+        var value=copyBtn.getAttribute("data-copy");
+        function done(){
+            copyBtn.classList.add("copied");
+            copyBtn.innerHTML="<span>✓</span> Tersalin";
+            toast.classList.add("show");
+            setTimeout(function(){toast.classList.remove("show");},2000);
+            setTimeout(function(){
+                copyBtn.classList.remove("copied");
+                copyBtn.innerHTML="<span>⧉</span> Salin Nominal";
+            },2500);
+        }
+        if(navigator.clipboard&&navigator.clipboard.writeText){
+            navigator.clipboard.writeText(value).then(done).catch(done);
+        }else{
+            var ta=document.createElement("textarea");
+            ta.value=value;
+            ta.style.position="fixed";
+            ta.style.opacity="0";
+            document.body.appendChild(ta);
+            ta.select();
+            try{document.execCommand("copy");}catch(e){}
+            document.body.removeChild(ta);
+            done();
+        }
+    });
+
+    checkBtn.addEventListener("click",function(){
+        checkBtn.disabled=true;
+        smoothRedirect("antrian.html","Memeriksa status pembayaran...");
+    });
+
+    window.addEventListener("beforeunload",function(){
+        if(expiryInterval){clearInterval(expiryInterval);}
+    });
+
+    renderExpiry();
+    startExpiry();
+})();
+</script>
+
+</body>
+</html>
